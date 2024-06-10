@@ -27,7 +27,6 @@ public class ChatInterface {
     static JTextField messageInput = new JTextField();
     static JPanel emptyPanel = new JPanel();
     JFrame frame = new JFrame();
-    static JTextField addUserInput;
     JLabel nameLabel;
     static JLabel profileName;
     static int recieverId = 0;
@@ -83,38 +82,6 @@ public class ChatInterface {
         nameLabel.setForeground(Color.WHITE);
         nameLabel.setBorder(BorderFactory.createEmptyBorder(4,0,0,0));
         namePanel.add(nameLabel);
-
-        addUserInput = new JTextField();
-//        addUserInput.setPreferredSize(new Dimension( 150, 20));
-//        addUserInput.setFont(new Font("SAN_SERIF", Font.PLAIN, 12));
-//        addUserInput.setBackground(new Color(89,89,89));
-//        addUserInput.setBorder(BorderFactory.createMatteBorder(3,10,3,3, new Color(89,89,89)));
-//        addUserInput.setCaretColor(new Color(42,123,246));
-//        addUserInput.setForeground(Color.WHITE);
-//        addUserInput.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                addUserBtn.doClick();
-//            }
-//        });
-//        addUserPanel.add(addUserInput);
-//
-//        addUserBtn = new JButton("Add");
-//        addUserBtn.setPreferredSize(new Dimension(40,20));
-//        addUserBtn.setBackground(new Color(42,123,246));
-//        addUserBtn.setForeground(new Color(255, 255, 255));
-//        addUserBtn.setOpaque(true);
-//        addUserBtn.setFocusPainted(false);
-//        addUserBtn.setFocusable(false);
-//        addUserBtn.setBorder(BorderFactory.createLineBorder(new Color(42,123,246),4,true));
-//        addUserBtn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                String username = addUserInput.getText();
-//                Client.addNewContact(username);
-//            }
-//        });
-//        addUserPanel.add(addUserBtn);
 
         JButton showChannelsBtn = new JButton("Add");
         showChannelsBtn.setPreferredSize(new Dimension(70,35));
@@ -305,18 +272,13 @@ public class ChatInterface {
         messageHolder.add(messageContainer);
 
         JPanel emptyPanel = new JPanel();
-        emptyPanel.setPreferredSize(new Dimension(300, 400));
+        emptyPanel.setPreferredSize(new Dimension(300, 600));
         emptyPanel.setBackground(new Color(24, 24, 25));
         emptyPanel.setName("emptyPanel");
         messageHolder.add(emptyPanel);
 
         messageHolder.revalidate();
         messageHolder.repaint();
-        int scrollToValue = chatScrollPane.getViewport().getHeight() - emptyPanel.getPreferredSize().height + 200;
-        if (scrollToValue < 0) scrollToValue = 0;
-
-        int finalScrollToValue = scrollToValue;
-        SwingUtilities.invokeLater(() -> chatScrollPane.getVerticalScrollBar().setValue(finalScrollToValue));
     }
 
 
@@ -421,36 +383,5 @@ public class ChatInterface {
                 Client.getChannelChat(channelId);
             }
         };
-    }
-
-    public static void displayUserNotFoundDialog() {
-        JFrame f = new JFrame();
-        JDialog d = new JDialog(f, "Error");
-        d.setLayout(new FlowLayout(FlowLayout.CENTER));
-        d.getContentPane().setBackground(new Color(40, 40, 41));
-        JLabel text = new JLabel("User not Found!");
-        text.setForeground(Color.white);
-        d.add(text);
-        JButton button = new JButton("OK");
-        button.setPreferredSize(new Dimension(180, 30));
-        button.setForeground(Color.white);
-        button.setBackground(new Color(42, 123, 246));
-        button.setOpaque(true);
-        button.setFocusPainted(false);
-        button.setFocusable(false);
-        d.add(button);
-        button.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                d.setModal(false);
-                d.dispose();
-            }
-        });
-        d.setSize(200, 60);
-        d.setLocation(600, 400);
-        d.setUndecorated(true);
-        d.setModal(true);
-        d.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        d.setVisible(true);
     }
 }

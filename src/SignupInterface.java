@@ -13,7 +13,7 @@ public class SignupInterface {
     static JTextField usernameField;
     static JPasswordField passwordField;
     static JButton submitBtn;
-    static JLabel errorLabel = new JLabel("Register your account");
+    static JLabel errorLabel;
     JSONObject userData = new JSONObject();
     public static JFrame signupFrame = new JFrame();
     static JLabel nameLabel;
@@ -48,7 +48,6 @@ public class SignupInterface {
 
         signupFormPanel.setBounds(700,110,350,400);
         signupFormPanel.setBackground(new Color(86, 86, 86));
-        signupFormPanel.setBorder(BorderFactory.createLineBorder(new Color(80,142,247),8,true));
         signupFormPanel.setLayout(null);
         mainContainer.add(signupFormPanel);
 
@@ -89,7 +88,6 @@ public class SignupInterface {
         nameField.setBorder(BorderFactory.createMatteBorder(3,10,3,3, new Color(49, 49, 49, 174)));
         signupFormPanel.add(nameField);
 
-
         usernameLabel = new JLabel("Username");
         usernameLabel.setFont(new Font("SanSerif",Font.BOLD,15));
         usernameLabel.setBounds(25,150,100,25);
@@ -126,6 +124,7 @@ public class SignupInterface {
         errorPanel.setBackground(null);
         mainContainer.add(errorPanel);
 
+        errorLabel = new JLabel("Register your account");
         errorLabel.setForeground(Color.WHITE);
         errorPanel.add(errorLabel);
 
@@ -177,6 +176,7 @@ public class SignupInterface {
             public void actionPerformed(ActionEvent e) {
                 signupFormPanel.removeAll();
                 errorLabel.setText("Register your Account");
+                signupFrame.dispose();
                 new SignupInterface();
             }
         };

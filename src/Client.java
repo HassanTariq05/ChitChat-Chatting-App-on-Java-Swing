@@ -85,56 +85,63 @@ public class Client {
     }
 
     public static void addChannel(String resultJson) {
-        JSONObject jsonObject = new JSONObject(resultJson);
-        JSONArray channels = jsonObject.getJSONArray("clientChannels");
 
-        for (int i = 0; i < channels.length(); i++) {
-            JSONObject channelJson = channels.getJSONObject(i);
-            JSONArray userIdsJson = channelJson.getJSONArray("userIds");
-            JSONArray userFullNamesJson = channelJson.getJSONArray("userFullNames");
+        try {
+            JSONObject jsonObject = new JSONObject(resultJson.toString());
+            JSONArray channels = jsonObject.getJSONArray("clientChannels");
 
-            int userId1 = userIdsJson.getInt(0);
-            int userId2 = userIdsJson.getInt(1);
+            for (int i = 0; i < channels.length(); i++) {
+                JSONObject channelJson = channels.getJSONObject(i);
+                JSONArray userIdsJson = channelJson.getJSONArray("userIds");
+                JSONArray userFullNamesJson = channelJson.getJSONArray("userFullNames");
 
-            if (userId1 == Client.myId || userId2 == Client.myId) {
-                Channel newChannel = new Channel();
-                newChannel.userIds.add(userId1);
-                newChannel.userIds.add(userId2);
-                newChannel.channelId = channelJson.getInt("channelId");
-                newChannel.channelName = channelJson.getString("channelName");
-                newChannel.userFullNames.add(userFullNamesJson.getString(0));
-                newChannel.userFullNames.add(userFullNamesJson.getString(1));
+                int userId1 = userIdsJson.getInt(0);
+                int userId2 = userIdsJson.getInt(1);
 
-                boolean isDuplicate = false;
-                for (Channel channel : Client.channelList) {
-                    if (channel.userIds.contains(userId1) && channel.userIds.contains(userId2)) {
-                        isDuplicate = true;
-                        break;
+                if (userId1 == Client.myId || userId2 == Client.myId) {
+                    Channel newChannel = new Channel();
+                    newChannel.userIds.add(userId1);
+                    newChannel.userIds.add(userId2);
+                    newChannel.channelId = channelJson.getInt("channelId");
+                    newChannel.channelName = channelJson.getString("channelName");
+                    newChannel.userFullNames.add(userFullNamesJson.getString(0));
+                    newChannel.userFullNames.add(userFullNamesJson.getString(1));
+
+                    boolean isDuplicate = false;
+                    for (Channel channel : Client.channelList) {
+                        if (channel.userIds.contains(userId1) && channel.userIds.contains(userId2)) {
+                            isDuplicate = true;
+                            break;
+                        }
+                    }
+
+                    if (!isDuplicate) {
+                        Client.channelList.add(newChannel);
                     }
                 }
+            }
 
-                if (!isDuplicate) {
-                    Client.channelList.add(newChannel);
+            System.out.println("Channels Subscribed: ");
+            for (Channel ch : Client.channelList) {
+                String fullName;
+                int id;
+                int channelId = ch.channelId;
+                if (ch.userIds.get(0) == Client.myId) {
+                    fullName = ch.userFullNames.get(1);
+                    id = ch.userIds.get(1);
+                } else {
+                    fullName = ch.userFullNames.get(0);
+                    id = ch.userIds.get(0);
                 }
+                AddChannelInterface.updateAddChannelPanel(id, fullName, channelId);
+                System.out.println(ch);
             }
-        }
-
-        System.out.println("Channels Subscribed: ");
-        for (Channel ch : Client.channelList) {
-            String fullName;
-            int id;
-            int channelId = ch.channelId;
-            if (ch.userIds.get(0) == Client.myId) {
-                fullName = ch.userFullNames.get(1);
-                id = ch.userIds.get(1);
-            } else {
-                fullName = ch.userFullNames.get(0);
-                id = ch.userIds.get(0);
-            }
-            AddChannelInterface.updateAddChannelPanel(id, fullName, channelId);
-            System.out.println(ch);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
+
+
 
     public static void getChannelChat(int channelId) {
         HTTPResponse.getHTTPChatResponse(channelId);

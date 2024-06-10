@@ -37,7 +37,6 @@ public class LoginInterface extends SignupInterface{
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-
                     userData.put(Keys.KEY_USERNAME, usernameField.getText());
                     userData.put(Keys.KEY_PASSWORD, passwordField.getText());
 
