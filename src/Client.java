@@ -131,7 +131,7 @@ public class Client {
                 fullName = ch.userFullNames.get(0);
                 id = ch.userIds.get(0);
             }
-            ChatInterface.updateChannelPanel(id, fullName, channelId);
+            AddChannelInterface.updateAddChannelPanel(id, fullName, channelId);
             System.out.println(ch);
         }
     }

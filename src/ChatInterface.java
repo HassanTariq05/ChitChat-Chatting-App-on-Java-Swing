@@ -9,9 +9,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Objects;
+import java.util.*;
+import java.util.List;
 
 public class ChatInterface {
     JPanel mainContainer = new JPanel();
@@ -24,6 +23,7 @@ public class ChatInterface {
     static String baseAssetPath = "/Users/i2p/IdeaProjects/Chat/Assets/";
     static JScrollPane chatScrollPane = new JScrollPane();
     static JScrollPane channelScrollPane = new JScrollPane();
+
     static JTextField messageInput = new JTextField();
     static JPanel emptyPanel = new JPanel();
     JFrame frame = new JFrame();
@@ -33,7 +33,9 @@ public class ChatInterface {
     static int recieverId = 0;
     static JButton sendBtn;
     static JPanel channelPanel;
+    static JPanel addChannelPanel;
     static JButton addUserBtn;
+    static List<Channel> addedChannels = new ArrayList<>();
 
     ChatInterface() {
         frame.setTitle("ChitChat");
@@ -71,7 +73,7 @@ public class ChatInterface {
         sidePanel.add(channelScrollPane, BorderLayout.CENTER);
 
         JPanel namePanel = new JPanel();
-        namePanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+        namePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
         namePanel.setBackground(null);
         namePanel.setPreferredSize(new Dimension(160,40));
         addUserPanel.add(namePanel);
@@ -83,36 +85,53 @@ public class ChatInterface {
         namePanel.add(nameLabel);
 
         addUserInput = new JTextField();
-        addUserInput.setPreferredSize(new Dimension( 150, 20));
-        addUserInput.setFont(new Font("SAN_SERIF", Font.PLAIN, 12));
-        addUserInput.setBackground(new Color(89,89,89));
-        addUserInput.setBorder(BorderFactory.createMatteBorder(3,10,3,3, new Color(89,89,89)));
-        addUserInput.setCaretColor(new Color(42,123,246));
-        addUserInput.setForeground(Color.WHITE);
-        addUserInput.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addUserBtn.doClick();
-            }
-        });
-        addUserPanel.add(addUserInput);
+//        addUserInput.setPreferredSize(new Dimension( 150, 20));
+//        addUserInput.setFont(new Font("SAN_SERIF", Font.PLAIN, 12));
+//        addUserInput.setBackground(new Color(89,89,89));
+//        addUserInput.setBorder(BorderFactory.createMatteBorder(3,10,3,3, new Color(89,89,89)));
+//        addUserInput.setCaretColor(new Color(42,123,246));
+//        addUserInput.setForeground(Color.WHITE);
+//        addUserInput.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                addUserBtn.doClick();
+//            }
+//        });
+//        addUserPanel.add(addUserInput);
+//
+//        addUserBtn = new JButton("Add");
+//        addUserBtn.setPreferredSize(new Dimension(40,20));
+//        addUserBtn.setBackground(new Color(42,123,246));
+//        addUserBtn.setForeground(new Color(255, 255, 255));
+//        addUserBtn.setOpaque(true);
+//        addUserBtn.setFocusPainted(false);
+//        addUserBtn.setFocusable(false);
+//        addUserBtn.setBorder(BorderFactory.createLineBorder(new Color(42,123,246),4,true));
+//        addUserBtn.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                String username = addUserInput.getText();
+//                Client.addNewContact(username);
+//            }
+//        });
+//        addUserPanel.add(addUserBtn);
 
-        addUserBtn = new JButton("Add");
-        addUserBtn.setPreferredSize(new Dimension(40,20));
-        addUserBtn.setBackground(new Color(42,123,246));
-        addUserBtn.setForeground(new Color(255, 255, 255));
-        addUserBtn.setOpaque(true);
-        addUserBtn.setFocusPainted(false);
-        addUserBtn.setFocusable(false);
-        addUserBtn.setBorder(BorderFactory.createLineBorder(new Color(42,123,246),4,true));
-        addUserBtn.addActionListener(new ActionListener() {
+        JButton showChannelsBtn = new JButton("Add");
+        showChannelsBtn.setPreferredSize(new Dimension(70,35));
+        showChannelsBtn.setBackground(new Color(42,123,246));
+        showChannelsBtn.setForeground(new Color(255, 255, 255));
+        showChannelsBtn.setOpaque(true);
+        showChannelsBtn.setFocusPainted(false);
+        showChannelsBtn.setFocusable(false);
+        showChannelsBtn.setBorder(BorderFactory.createLineBorder(new Color(42,123,246),4,true));
+        showChannelsBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String username = addUserInput.getText();
-                Client.addNewContact(username);
+                new AddChannelInterface();
             }
         });
-        addUserPanel.add(addUserBtn);
+        addUserPanel.add(showChannelsBtn);
+
 
         chatBoxPanel.setLayout(new BorderLayout());
         chatBoxPanel.setPreferredSize(new Dimension(775,545));
@@ -345,25 +364,46 @@ public class ChatInterface {
             channelScrollPane.setViewportView(channelPanel);
         }
 
-        JButton userPanelBtn = new JButton(fullName);
-        Dimension buttonSize = new Dimension(365, 50);
-        userPanelBtn.setPreferredSize(buttonSize);
-        userPanelBtn.setMinimumSize(buttonSize);
-        userPanelBtn.setMaximumSize(buttonSize);
-        userPanelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        Channel channel = new Channel();
+        channel.channelName = null;
+        channel.userFullNames = new ArrayList<>();
+        channel.userFullNames.add(Client.myFullname);
+        channel.userFullNames.add(fullName);
+        channel.channelId = channelId;
 
-        userPanelBtn.setBackground(new Color(63, 63, 63));
-        userPanelBtn.setForeground(new Color(255, 255, 255));
-        userPanelBtn.setOpaque(true);
-        userPanelBtn.setFocusPainted(false);
-        userPanelBtn.setFocusable(false);
-        userPanelBtn.setBorder(BorderFactory.createLineBorder(new Color(40, 40, 41), 4, true));
-        userPanelBtn.addActionListener(getChatPanelReady(fullName, receiverId, channelId));
-        channelPanel.add(userPanelBtn);
-        channelPanel.add(Box.createRigidArea(new Dimension(0, 5)));  // Add spacing between buttons
-        channelPanel.revalidate();
-        channelPanel.repaint();
+        boolean alreadyAdded = false;
+        for (Channel ch : addedChannels) {
+            if (channel.channelId == ch.channelId) {
+                alreadyAdded = true;
+                break;
+            }
+        }
+
+        if (!alreadyAdded) {
+            addedChannels.add(channel);
+
+            JButton userPanelBtn = new JButton(fullName);
+            Dimension buttonSize = new Dimension(365, 50);
+            userPanelBtn.setPreferredSize(buttonSize);
+            userPanelBtn.setMinimumSize(buttonSize);
+            userPanelBtn.setMaximumSize(buttonSize);
+            userPanelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+            userPanelBtn.setBackground(new Color(63, 63, 63));
+            userPanelBtn.setForeground(new Color(255, 255, 255));
+            userPanelBtn.setOpaque(true);
+            userPanelBtn.setFocusPainted(false);
+            userPanelBtn.setFocusable(false);
+            userPanelBtn.setBorder(BorderFactory.createLineBorder(new Color(40, 40, 41), 4, true));
+            userPanelBtn.addActionListener(getChatPanelReady(fullName, receiverId, channelId));
+
+            channelPanel.add(userPanelBtn);
+            channelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            channelPanel.revalidate();
+            channelPanel.repaint();
+        }
     }
+
 
     public static ActionListener getChatPanelReady(String fullname, int id, int channelId) {
         return new ActionListener() {

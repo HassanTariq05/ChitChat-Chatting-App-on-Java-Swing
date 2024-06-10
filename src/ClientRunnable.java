@@ -96,7 +96,7 @@ public class ClientRunnable implements Runnable {
     }
 
     private void handleResponseAddChannel() {
-        ChatInterface.channelPanel.removeAll();
+        AddChannelInterface.buttonPanel.removeAll();
         HTTPResponse.getHTTPChannelResponse();
     }
 }
