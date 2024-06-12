@@ -38,13 +38,12 @@ public class SignupInterface {
         signupFrame.add(mainContainer);
 
         JLabel appLogo = new JLabel(ChatInterface.loadImage(ChatInterface.baseAssetPath + "appLogo.png", 200,200));
-        appLogo.setBounds(200,150,200,200);
+        appLogo.setBounds(250,185,200,200);
         mainContainer.add(appLogo);
 
         JLabel appLogoText = new JLabel(ChatInterface.loadImage(ChatInterface.baseAssetPath + "appLogoText.png", 250,100));
-        appLogoText.setBounds(170,340,250,100);
+        appLogoText.setBounds(220,365,250,100);
         mainContainer.add(appLogoText);
-
 
         signupFormPanel.setBounds(700,110,350,400);
         signupFormPanel.setBackground(new Color(86, 86, 86));

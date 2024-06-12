@@ -94,6 +94,7 @@ public class ChatInterface {
         showChannelsBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                HTTPResponse.getHTTPAllUserListResponse(Client.myId);
                 new AddChannelInterface();
             }
         });
@@ -319,7 +320,7 @@ public class ChatInterface {
         return sdf.format(cal.getTime()).toUpperCase(Locale.ROOT);
     }
 
-    public static void updateChannelPanel(int receiverId, String fullName, int channelId) {
+    public static void updateChannelPanel(int receiverId, String fullName, int channelId, String username) {
         if (channelPanel == null) {
             channelPanel = new JPanel();
             channelPanel.setLayout(new BoxLayout(channelPanel, BoxLayout.Y_AXIS));
@@ -332,6 +333,8 @@ public class ChatInterface {
         channel.userFullNames.add(Client.myFullname);
         channel.userFullNames.add(fullName);
         channel.channelId = channelId;
+        channel.usernames.add(Client.myUsername);
+        channel.usernames.add(username);
 
         boolean alreadyAdded = false;
         for (Channel ch : addedChannels) {
@@ -344,7 +347,9 @@ public class ChatInterface {
         if (!alreadyAdded) {
             addedChannels.add(channel);
 
-            JButton userPanelBtn = new JButton(fullName);
+            String buttonText = "<html><div style='text-align: center;'><span style='font-size: 12px;'>" + fullName +
+                    "</span><br><span style='font-size: 8px;'>" + username + "</span></div></html>";
+            JButton userPanelBtn = new JButton(buttonText);
             Dimension buttonSize = new Dimension(365, 50);
             userPanelBtn.setPreferredSize(buttonSize);
             userPanelBtn.setMinimumSize(buttonSize);

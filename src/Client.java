@@ -1,4 +1,3 @@
-import model.Keys;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -8,6 +7,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Client {
@@ -78,6 +78,7 @@ public class Client {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("command", "add_new_contact");
         jsonObject.put("username", username);
+        jsonObject.put("myUsername", Client.myUsername);
         jsonObject.put("id", myId);
         jsonObject.put("fullName", myFullname);
         output.println(jsonObject);
@@ -87,13 +88,14 @@ public class Client {
     public static void addChannel(String resultJson) {
 
         try {
-            JSONObject jsonObject = new JSONObject(resultJson.toString());
+            JSONObject jsonObject = new JSONObject(resultJson);
             JSONArray channels = jsonObject.getJSONArray("clientChannels");
 
             for (int i = 0; i < channels.length(); i++) {
                 JSONObject channelJson = channels.getJSONObject(i);
                 JSONArray userIdsJson = channelJson.getJSONArray("userIds");
                 JSONArray userFullNamesJson = channelJson.getJSONArray("userFullNames");
+                JSONArray usernamesJson = channelJson.getJSONArray("usernames");
 
                 int userId1 = userIdsJson.getInt(0);
                 int userId2 = userIdsJson.getInt(1);
@@ -106,6 +108,10 @@ public class Client {
                     newChannel.channelName = channelJson.getString("channelName");
                     newChannel.userFullNames.add(userFullNamesJson.getString(0));
                     newChannel.userFullNames.add(userFullNamesJson.getString(1));
+
+                    newChannel.usernames.add(usernamesJson.getString(0));
+                    newChannel.usernames.add(usernamesJson.getString(1));
+
 
                     boolean isDuplicate = false;
                     for (Channel channel : Client.channelList) {
@@ -125,21 +131,53 @@ public class Client {
             for (Channel ch : Client.channelList) {
                 String fullName;
                 int id;
+                String username;
                 int channelId = ch.channelId;
                 if (ch.userIds.get(0) == Client.myId) {
                     fullName = ch.userFullNames.get(1);
                     id = ch.userIds.get(1);
+                    username = ch.usernames.get(0);
                 } else {
                     fullName = ch.userFullNames.get(0);
                     id = ch.userIds.get(0);
+                    username = ch.usernames.get(1);
                 }
-                AddChannelInterface.updateAddChannelPanel(id, fullName, channelId);
-                System.out.println(ch);
+                ChatInterface.updateChannelPanel(id, fullName, channelId, username);
+                System.out.println(ch.toString());
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    public static void addAllUsersToUsersPanel(String resultJson) {
+        try {
+            JSONObject jsonObject = new JSONObject(resultJson);
+            JSONArray userList = jsonObject.getJSONArray("allUserList");
+
+            for (int i = 0; i < userList.length(); i++) {
+                JSONObject userObj = userList.getJSONObject(i);
+                String fullname = userObj.getString("fullname");
+                String username = userObj.getString("username");
+                int id = userObj.getInt("id");
+
+                boolean alreadyAdded = false;
+                for (Channel ch : ChatInterface.addedChannels) {
+                    if (ch.usernames.size() >= 2) {
+                        if (username.equalsIgnoreCase(ch.usernames.get(0)) || username.equalsIgnoreCase(ch.usernames.get(1))) {
+                            alreadyAdded = true;
+                            break;
+                        }
+                    }
+                }
+                if (!alreadyAdded) {
+                    AddChannelInterface.updateAddAllUserPanel(id, fullname, username);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 
 

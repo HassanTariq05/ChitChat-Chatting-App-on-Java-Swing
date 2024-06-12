@@ -7,9 +7,10 @@ import java.awt.event.ActionListener;
 public class AddChannelInterface {
     static JScrollPane addChannelScrollPane = new JScrollPane();
     static JPanel buttonPanel;
+    static JFrame f;
 
     AddChannelInterface() {
-        JFrame f = new JFrame();
+        f = new JFrame();
         f.setLayout(new BorderLayout());
         f.setSize(300, 400);
         f.setLocation(378, 105);
@@ -21,32 +22,11 @@ public class AddChannelInterface {
         addChannelPanel.setBorder(new EmptyBorder(5,0,0,0));
         f.add(addChannelPanel, BorderLayout.NORTH);
 
-        JTextField addUserInput = new JTextField();
-        addUserInput.setPreferredSize(new Dimension( 150, 30));
-        addUserInput.setFont(new Font("SAN_SERIF", Font.PLAIN, 12));
-        addUserInput.setBackground(new Color(89,89,89));
-        addUserInput.setBorder(BorderFactory.createMatteBorder(3,10,3,3, new Color(89,89,89)));
-        addUserInput.setCaretColor(new Color(42,123,246));
-        addUserInput.setForeground(Color.WHITE);
-        addChannelPanel.add(addUserInput);
-
-        JButton addUserBtn;
-        addUserBtn = new JButton("Add");
-        addUserBtn.setPreferredSize(new Dimension(40,30));
-        addUserBtn.setBackground(new Color(42,123,246));
-        addUserBtn.setForeground(new Color(255, 255, 255));
-        addUserBtn.setOpaque(true);
-        addUserBtn.setFocusPainted(false);
-        addUserBtn.setFocusable(false);
-        addUserBtn.setBorder(BorderFactory.createLineBorder(new Color(42,123,246),4,true));
-        addUserBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String username = addUserInput.getText();
-                Client.addNewContact(username);
-            }
-        });
-        addChannelPanel.add(addUserBtn);
+        JLabel selectUserLabel = new JLabel("Select User");
+        selectUserLabel.setForeground(Color.WHITE);
+        selectUserLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        selectUserLabel.setBorder(BorderFactory.createEmptyBorder(7,0,0,0));
+        addChannelPanel.add(selectUserLabel);
 
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
@@ -82,19 +62,21 @@ public class AddChannelInterface {
         });
         closeBtnPanel.add(closeBtn);
 
-        addUserBtn.doClick();
         f.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         f.setVisible(true);
     }
 
-    public static void updateAddChannelPanel(int receiverId, String fullName, int channelId) {
+    public static void updateAddAllUserPanel(int receiverId, String fullName, String username) {
         if (buttonPanel == null) {
             buttonPanel = new JPanel();
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
             addChannelScrollPane.setViewportView(buttonPanel);
         }
 
-        JButton userPanelBtn = new JButton(fullName);
+        String buttonText = "<html><div style='text-align: center;'><span style='font-size: 12px;'>" + fullName +
+                "</span><br><span style='font-size: 8px;'>" + username + "</span></div></html>";
+
+        JButton userPanelBtn = new JButton(buttonText);
         Dimension buttonSize = new Dimension(280, 50);
         userPanelBtn.setPreferredSize(buttonSize);
         userPanelBtn.setMinimumSize(buttonSize);
@@ -110,12 +92,15 @@ public class AddChannelInterface {
         userPanelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ChatInterface.updateChannelPanel(receiverId, fullName, channelId);
+                Client.addNewContact(username);
+                f.setVisible(false);
             }
         });
-        buttonPanel.add(userPanelBtn);
-        buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-        buttonPanel.revalidate();
-        buttonPanel.repaint();
+        SwingUtilities.invokeLater(() -> {
+            buttonPanel.add(userPanelBtn);
+            buttonPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+        });
     }
 }

@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ClientRunnable implements Runnable {
 
@@ -57,6 +58,9 @@ public class ClientRunnable implements Runnable {
             case "response_add_new_contact":
                 handleResponseAddChannel();
                 break;
+            case "contact_added_to_server":
+                handleContactAddedToServer(jsonObject);
+                break;
         }
     }
 
@@ -98,5 +102,13 @@ public class ClientRunnable implements Runnable {
     private void handleResponseAddChannel() {
         AddChannelInterface.buttonPanel.removeAll();
         HTTPResponse.getHTTPChannelResponse();
+    }
+    private void handleContactAddedToServer(JSONObject jsonObject) {
+        System.out.println("New contact from server!");
+        String username = jsonObject.getString("username");
+        if(Objects.equals(username, Client.myUsername)) {
+            System.out.println("Username: " + username + "\nMy Username:" + Client.myUsername);
+            HTTPResponse.getHTTPChannelResponse();
+        }
     }
 }

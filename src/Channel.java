@@ -9,6 +9,7 @@ public class Channel {
     int myId = Client.myId;
 
     ArrayList<String> userFullNames = new ArrayList<>();
+    ArrayList<String> usernames = new ArrayList<>();
 
 
     @Override
@@ -18,6 +19,7 @@ public class Channel {
                 ", \"channelId\":" + channelId +
                 ", \"channelName\":" + "\"" +channelName + "\"" +
                 ", \"userFullNames\":" + userFullNames +
+                ", \"usernames\":" + usernames +
                 ", \"myId\":" + myId +
                 '}';
     }
