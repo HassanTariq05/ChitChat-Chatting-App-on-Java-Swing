@@ -1,3 +1,4 @@
+import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -8,7 +9,7 @@ import java.util.Scanner;
 
 public class HTTPResponse {
     public static void getHTTPChannelResponse() {
-        String urlString = "http://127.0.0.1:8080/channels/Client-ID=" + Client.myId;
+        String urlString = "http://127.0.0.1:8080/channels/Client-ID=" + User.getInstance().myId;
         System.out.println(urlString);
 
         try {
@@ -39,7 +40,7 @@ public class HTTPResponse {
 
 
 
-    public static void getHTTPChatResponse(int channelId) {
+    public static JSONObject getHTTPChatResponse(int channelId, Boolean channelSelected) {
         String urlString = "http://127.0.0.1:8080/chats/Channel-ID=" + channelId;
         System.out.println(urlString);
 
@@ -48,7 +49,7 @@ public class HTTPResponse {
 
             if (conn.getResponseCode() != 200) {
                 System.out.println("Error: " + conn.getResponseMessage());
-                return;
+                return null;
             }
 
             StringBuilder resultJson = new StringBuilder();
@@ -69,24 +70,36 @@ public class HTTPResponse {
 
             for (int i = 0; i < chatArray.length(); i++) {
                 JSONObject chatMessage = chatArray.getJSONObject(i);
-
                 System.out.println("Chat message: " + chatMessage);
 
                 int receiverId = chatMessage.getInt("receiverId");
                 int senderId = chatMessage.getInt("senderId");
                 String message = chatMessage.getString("message");
+                String timestamp = chatMessage.getString("timestamp");
 
-                if (receiverId == Client.myId) {
+                if (channelSelected && receiverId == User.getInstance().myId) {
                     ChatInterface.updateChatUI(message, "incoming");
+
                 }
-                if (senderId == Client.myId) {
+                if (channelSelected && senderId == User.getInstance().myId) {
                     ChatInterface.updateChatUI(message, "outgoing");
                 }
             }
-
+            if(!channelSelected) {
+                if(!chatArray.isNull(0)) {
+                    return chatArray.getJSONObject(chatArray.length()-1);
+                } else {
+                    JSONObject emptyJson = new JSONObject();
+                    emptyJson.put("message","No Message");
+                    emptyJson.put("timestamp", "");
+                    emptyJson.put("senderId", -1);
+                    return emptyJson;
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
 
     public static void getHTTPAllUserListResponse(int clientId) {

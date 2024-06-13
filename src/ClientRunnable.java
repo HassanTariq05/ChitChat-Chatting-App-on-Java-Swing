@@ -1,5 +1,6 @@
 import model.Chat;
 import model.Keys;
+import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -66,9 +67,9 @@ public class ClientRunnable implements Runnable {
 
     private static void handleRegistrationSuccessful(JSONObject jsonObject) {
         String username = jsonObject.getString(Keys.KEY_USERNAME);
-        if(Client.myUsername.equalsIgnoreCase(username)) {
-            Client.myFullname = jsonObject.getString(Keys.KEY_FULL_NAME);
-            Client.myId = jsonObject.getInt(Keys.KEY_ID);
+        if(User.getInstance().myUsername.equalsIgnoreCase(username)) {
+            User.getInstance().myFullname = jsonObject.getString(Keys.KEY_FULL_NAME);
+            User.getInstance().myId = jsonObject.getInt(Keys.KEY_ID);
             Client.gotoChats();
             HTTPResponse. getHTTPChannelResponse();
         }
@@ -81,9 +82,9 @@ public class ClientRunnable implements Runnable {
     }
     private void handleLoginSuccessfulResponse(JSONObject jsonObject) {
         String username = jsonObject.getString(Keys.KEY_USERNAME);
-        if(Client.myUsername.equalsIgnoreCase(username)) {
-            Client.myFullname = jsonObject.getString(Keys.KEY_FULL_NAME);
-            Client.myId = jsonObject.getInt(Keys.KEY_ID);
+        if(User.getInstance().myUsername.equalsIgnoreCase(username)) {
+            User.getInstance().myFullname = jsonObject.getString(Keys.KEY_FULL_NAME);
+            User.getInstance().myId = jsonObject.getInt(Keys.KEY_ID);
             Client.gotoChats();
             HTTPResponse.getHTTPChannelResponse();
 
@@ -93,9 +94,15 @@ public class ClientRunnable implements Runnable {
     private void handleResponseSentChatMessage(JSONObject jsonObject) {
         int receiverId = jsonObject.getInt("receiverId");
         int channelId = jsonObject.getInt("channelId");
-        if(receiverId == Client.myId && Client.selectedChannel == channelId) {
+        if(receiverId == User.getInstance().myId && User.getInstance().selectedChannel == channelId) {
             String message = jsonObject.getString("message");
             ChatInterface.updateChatUI(message, "incoming");
+            Client.getInstance().channelList.clear();
+            System.out.println("Channel List after:" + Client.getInstance().channelList);
+            ChatInterface.addedChannels.clear();
+            ChatInterface.channelPanel.removeAll();
+            HTTPResponse.getHTTPChannelResponse();
+
         }
     }
 
@@ -106,8 +113,8 @@ public class ClientRunnable implements Runnable {
     private void handleContactAddedToServer(JSONObject jsonObject) {
         System.out.println("New contact from server!");
         String username = jsonObject.getString("username");
-        if(Objects.equals(username, Client.myUsername)) {
-            System.out.println("Username: " + username + "\nMy Username:" + Client.myUsername);
+        if(Objects.equals(username, User.getInstance().myUsername)) {
+            System.out.println("Username: " + username + "\nMy Username:" + User.getInstance().myUsername);
             HTTPResponse.getHTTPChannelResponse();
         }
     }

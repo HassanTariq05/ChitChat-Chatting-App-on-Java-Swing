@@ -40,7 +40,7 @@ public class LoginInterface extends SignupInterface{
                     userData.put(Keys.KEY_USERNAME, usernameField.getText());
                     userData.put(Keys.KEY_PASSWORD, passwordField.getText());
 
-                    Client.myUsername = usernameField.getText();
+                    User.getInstance().myUsername = usernameField.getText();
                     Client.login(userData);
 
                 } catch (Exception ex) {

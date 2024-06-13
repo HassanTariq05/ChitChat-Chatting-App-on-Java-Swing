@@ -1,4 +1,6 @@
 import model.Chat;
+import model.User;
+import org.json.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,25 +17,21 @@ import java.util.List;
 public class ChatInterface {
     JPanel mainContainer = new JPanel();
     JPanel addUserPanel = new JPanel();
-    static JPanel sidePanel = new JPanel();
+    JPanel sidePanel = new JPanel();
     JPanel profilePanel = new JPanel();
     static JPanel profilePicPanel;
     JPanel chatBoxPanel = new JPanel();
     JPanel sendMessagePanel = new JPanel();
-    static String baseAssetPath = "/Users/i2p/IdeaProjects/Chat/Assets/";
     static JScrollPane chatScrollPane = new JScrollPane();
     static JScrollPane channelScrollPane = new JScrollPane();
 
     static JTextField messageInput = new JTextField();
-    static JPanel emptyPanel = new JPanel();
     JFrame frame = new JFrame();
     JLabel nameLabel;
     static JLabel profileName;
     static int recieverId = 0;
     static JButton sendBtn;
     static JPanel channelPanel;
-    static JPanel addChannelPanel;
-    static JButton addUserBtn;
     static List<Channel> addedChannels = new ArrayList<>();
 
     ChatInterface() {
@@ -77,7 +75,7 @@ public class ChatInterface {
         namePanel.setPreferredSize(new Dimension(160,40));
         addUserPanel.add(namePanel);
 
-        nameLabel = new JLabel(Client.myFullname);
+        nameLabel = new JLabel(User.getInstance().myFullname);
         nameLabel.setFont(new Font("SAN_SERIF", Font.BOLD, 16));
         nameLabel.setForeground(Color.WHITE);
         nameLabel.setBorder(BorderFactory.createEmptyBorder(4,0,0,0));
@@ -94,7 +92,7 @@ public class ChatInterface {
         showChannelsBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                HTTPResponse.getHTTPAllUserListResponse(Client.myId);
+                HTTPResponse.getHTTPAllUserListResponse(User.getInstance().myId);
                 new AddChannelInterface();
             }
         });
@@ -124,7 +122,7 @@ public class ChatInterface {
         profilePicPanel.setBackground(new Color(63, 63, 63));
         profilePicPanel.setBorder(BorderFactory.createMatteBorder(0,20,0,10, new Color(63, 63, 63)));
         profilePanel.add(profilePicPanel, BorderLayout.WEST);
-        JLabel profilePicIcon = new JLabel(loadImage(baseAssetPath + "profilePic.png", 40,40));
+        JLabel profilePicIcon = new JLabel(loadImage(User.getInstance().baseAssetPath + "profilePic.png", 40,40));
         profilePicPanel.add(profilePicIcon);
         profilePicPanel.setVisible(false);
         profileName = new JLabel("Name Here");
@@ -134,7 +132,7 @@ public class ChatInterface {
         profileName.setVisible(false);
 
         JButton logoutBtn = new JButton();
-        logoutBtn.setIcon(loadImage(baseAssetPath + "logout.png",40,40));
+        logoutBtn.setIcon(loadImage(User.getInstance().baseAssetPath + "logout.png",40,40));
         logoutBtn.setPreferredSize(new Dimension(60,30));
         logoutBtn.setOpaque(true);
         logoutBtn.setBackground(null);
@@ -191,15 +189,19 @@ public class ChatInterface {
 
                 if(!msg.trim().isEmpty()) {
                     Chat chat = new Chat();
-                    chat.setSenderId(Client.myId);
+                    chat.setSenderId(User.getInstance().myId);
                     chat.setReceiverId(recieverId);
-                    chat.setChannelId(Client.channelId);
+                    chat.setChannelId(User.getInstance().channelId);
                     chat.setTimestamp(getCurrentTime());
                     chat.setMessage(msg);
                     System.out.println("Chat Instance:" + chat.toJSONObject());
                     Client.sendChatMessage(chat.toJSONObject());
-
                     updateChatUI(msg, "outgoing");
+                    Client.getInstance().channelList.clear();
+                    System.out.println("Channel List after:" + Client.getInstance().channelList);
+                    addedChannels.clear();
+                    channelPanel.removeAll();
+                    HTTPResponse.getHTTPChannelResponse();
                 }
 
                 messageInput.setText("");
@@ -261,7 +263,6 @@ public class ChatInterface {
             chatScrollPane.setViewportView(messageHolder);
         }
 
-        // Remove the existing empty panel if any
         Component[] components = messageHolder.getComponents();
         for (Component component : components) {
             if (component instanceof JPanel && "emptyPanel".equals(component.getName())) {
@@ -285,7 +286,7 @@ public class ChatInterface {
 
 
     public static void clearChatUI() {
-        JPanel messageHolder = (JPanel) chatScrollPane.getViewport().getView();
+        JPanel messageHolder = (JPanel) ChatInterface.chatScrollPane.getViewport().getView();
         if (messageHolder != null) {
             messageHolder.removeAll();
             messageHolder.revalidate();
@@ -321,23 +322,23 @@ public class ChatInterface {
     }
 
     public static void updateChannelPanel(int receiverId, String fullName, int channelId, String username) {
-        if (channelPanel == null) {
-            channelPanel = new JPanel();
-            channelPanel.setLayout(new BoxLayout(channelPanel, BoxLayout.Y_AXIS));
-            channelScrollPane.setViewportView(channelPanel);
+        if (ChatInterface.channelPanel == null) {
+            ChatInterface.channelPanel = new JPanel();
+            ChatInterface.channelPanel.setLayout(new BoxLayout(ChatInterface.channelPanel, BoxLayout.Y_AXIS));
+            ChatInterface.channelScrollPane.setViewportView(ChatInterface.channelPanel);
         }
 
         Channel channel = new Channel();
         channel.channelName = null;
         channel.userFullNames = new ArrayList<>();
-        channel.userFullNames.add(Client.myFullname);
+        channel.userFullNames.add(User.getInstance().myFullname);
         channel.userFullNames.add(fullName);
         channel.channelId = channelId;
-        channel.usernames.add(Client.myUsername);
+        channel.usernames.add(User.getInstance().myUsername);
         channel.usernames.add(username);
 
         boolean alreadyAdded = false;
-        for (Channel ch : addedChannels) {
+        for (Channel ch : ChatInterface.addedChannels) {
             if (channel.channelId == ch.channelId) {
                 alreadyAdded = true;
                 break;
@@ -345,29 +346,19 @@ public class ChatInterface {
         }
 
         if (!alreadyAdded) {
-            addedChannels.add(channel);
+            JSONObject lastMessageJson = HTTPResponse.getHTTPChatResponse(channelId, false);
+            String lastMessageStr = lastMessageJson.getString("message");
+            String timestampStr = lastMessageJson.getString("timestamp");
+            int senderId = lastMessageJson.getInt("senderId");
+            System.out.println("Last Message:" + lastMessageJson);
 
-            String buttonText = "<html><div style='text-align: center;'><span style='font-size: 12px;'>" + fullName +
-                    "</span><br><span style='font-size: 8px;'>" + username + "</span></div></html>";
-            JButton userPanelBtn = new JButton(buttonText);
-            Dimension buttonSize = new Dimension(365, 50);
-            userPanelBtn.setPreferredSize(buttonSize);
-            userPanelBtn.setMinimumSize(buttonSize);
-            userPanelBtn.setMaximumSize(buttonSize);
-            userPanelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-            userPanelBtn.setBackground(new Color(63, 63, 63));
-            userPanelBtn.setForeground(new Color(255, 255, 255));
-            userPanelBtn.setOpaque(true);
-            userPanelBtn.setFocusPainted(false);
-            userPanelBtn.setFocusable(false);
-            userPanelBtn.setBorder(BorderFactory.createLineBorder(new Color(40, 40, 41), 4, true));
+            ChatInterface.addedChannels.add(channel);
+            ChannelButton userPanelBtn = new ChannelButton("Assets/profilePic.png", fullName, lastMessageStr, timestampStr, senderId);
             userPanelBtn.addActionListener(getChatPanelReady(fullName, receiverId, channelId));
-
-            channelPanel.add(userPanelBtn);
-            channelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
-            channelPanel.revalidate();
-            channelPanel.repaint();
+            ChatInterface.channelPanel.add(userPanelBtn);
+            ChatInterface.channelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
+            ChatInterface.channelPanel.revalidate();
+            ChatInterface.channelPanel.repaint();
         }
     }
 
@@ -376,14 +367,14 @@ public class ChatInterface {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                profileName.setText(fullname);
-                recieverId = id;
-                Client.channelId = channelId;
-                Client.selectedChannel = channelId;
-                profilePicPanel.setVisible(true);
-                profileName.setVisible(true);
-                messageInput.setVisible(true);
-                sendBtn.setVisible(true);
+                ChatInterface.profileName.setText(fullname);
+                ChatInterface.recieverId = id;
+                User.getInstance().channelId = channelId;
+                User.getInstance().selectedChannel = channelId;
+                ChatInterface.profilePicPanel.setVisible(true);
+                ChatInterface.profileName.setVisible(true);
+                ChatInterface.messageInput.setVisible(true);
+                ChatInterface.sendBtn.setVisible(true);
 
                 Client.getChannelChat(channelId);
             }

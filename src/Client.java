@@ -1,3 +1,4 @@
+import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -7,30 +8,31 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Scanner;
 
 public class Client {
+    private static Client clientInstance = null;
+    Client() {
+    }
 
-    static PrintWriter output;
-    static String myFullname;
+    public static Client getInstance() {
+        if(clientInstance == null) {
+            clientInstance = new Client();
+        }
+        return clientInstance;
+    }
 
-    static int myId;
-    static String myUsername;
+    PrintWriter output;
 
-    static ChatInterface chatInterface;
-    static SignupInterface signupInterface;
-    static int channelId;
-
-    static List<Channel> channelList = new ArrayList<>();
-    static  int selectedChannel;
+    SignupInterface signupInterface;
+    public List<Channel> channelList = new ArrayList<>();
 
     public static void main(String[] args) {
 
         try (Socket socket = new Socket("localhost", 6001)) {
-            signupInterface = new SignupInterface();
+            getInstance().signupInterface = new SignupInterface();
             BufferedReader input = new BufferedReader( new InputStreamReader(socket.getInputStream()));
-            output = new PrintWriter(socket.getOutputStream(),true);
+            getInstance().output = new PrintWriter(socket.getOutputStream(),true);
 
             Scanner scanner = new Scanner(System.in);
             String userInput;
@@ -50,7 +52,7 @@ public class Client {
     public static void signup(JSONObject userData) {
 
         userData.put("command", "signup");
-        output.println(userData);
+        getInstance().output.println(userData);
 
         System.out.println("Sent: "+userData);
 
@@ -58,7 +60,7 @@ public class Client {
 
     public static void login(JSONObject userData) {
         userData.put("command", "login");
-        output.println(userData);
+        getInstance().output.println(userData);
 
         System.out.println("Sent: " + userData);
     }
@@ -71,17 +73,17 @@ public class Client {
     public static void sendChatMessage(JSONObject jsonObject) {
 
         jsonObject.put("command", "send_chat_message");
-        output.println(jsonObject);
+        getInstance().output.println(jsonObject);
         System.out.println("Sent: "+jsonObject);
     }
     public static void addNewContact(String username) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("command", "add_new_contact");
         jsonObject.put("username", username);
-        jsonObject.put("myUsername", Client.myUsername);
-        jsonObject.put("id", myId);
-        jsonObject.put("fullName", myFullname);
-        output.println(jsonObject);
+        jsonObject.put("myUsername", User.getInstance().myUsername);
+        jsonObject.put("id", User.getInstance().myId);
+        jsonObject.put("fullName", User.getInstance().myFullname);
+        getInstance().output.println(jsonObject);
         System.out.println("Sent:" + jsonObject);
     }
 
@@ -100,7 +102,7 @@ public class Client {
                 int userId1 = userIdsJson.getInt(0);
                 int userId2 = userIdsJson.getInt(1);
 
-                if (userId1 == Client.myId || userId2 == Client.myId) {
+                if (userId1 == User.getInstance().myId || userId2 == User.getInstance().myId) {
                     Channel newChannel = new Channel();
                     newChannel.userIds.add(userId1);
                     newChannel.userIds.add(userId2);
@@ -114,7 +116,7 @@ public class Client {
 
 
                     boolean isDuplicate = false;
-                    for (Channel channel : Client.channelList) {
+                    for (Channel channel : Client.getInstance().channelList) {
                         if (channel.userIds.contains(userId1) && channel.userIds.contains(userId2)) {
                             isDuplicate = true;
                             break;
@@ -122,18 +124,18 @@ public class Client {
                     }
 
                     if (!isDuplicate) {
-                        Client.channelList.add(newChannel);
+                        Client.getInstance().channelList.add(newChannel);
                     }
                 }
             }
 
             System.out.println("Channels Subscribed: ");
-            for (Channel ch : Client.channelList) {
+            for (Channel ch : Client.getInstance().channelList) {
                 String fullName;
                 int id;
                 String username;
                 int channelId = ch.channelId;
-                if (ch.userIds.get(0) == Client.myId) {
+                if (ch.userIds.get(0) == User.getInstance().myId) {
                     fullName = ch.userFullNames.get(1);
                     id = ch.userIds.get(1);
                     username = ch.usernames.get(0);
@@ -177,11 +179,7 @@ public class Client {
             e.printStackTrace();
         }
     }
-
-
-
-
     public static void getChannelChat(int channelId) {
-        HTTPResponse.getHTTPChatResponse(channelId);
+        HTTPResponse.getHTTPChatResponse(channelId, true);
     }
 }

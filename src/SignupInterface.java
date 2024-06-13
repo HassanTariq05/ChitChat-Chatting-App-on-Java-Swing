@@ -1,4 +1,5 @@
 import model.Keys;
+import model.User;
 import org.json.JSONObject;
 
 import javax.swing.*;
@@ -37,11 +38,11 @@ public class SignupInterface {
         mainContainer.setBackground(new Color(52, 52, 52));
         signupFrame.add(mainContainer);
 
-        JLabel appLogo = new JLabel(ChatInterface.loadImage(ChatInterface.baseAssetPath + "appLogo.png", 200,200));
+        JLabel appLogo = new JLabel(ChatInterface.loadImage(User.getInstance().baseAssetPath + "appLogo.png", 200,200));
         appLogo.setBounds(250,185,200,200);
         mainContainer.add(appLogo);
 
-        JLabel appLogoText = new JLabel(ChatInterface.loadImage(ChatInterface.baseAssetPath + "appLogoText.png", 250,100));
+        JLabel appLogoText = new JLabel(ChatInterface.loadImage(User.getInstance().baseAssetPath + "appLogoText.png", 250,100));
         appLogoText.setBounds(220,365,250,100);
         mainContainer.add(appLogoText);
 
@@ -146,7 +147,7 @@ public class SignupInterface {
                     userData.put(Keys.KEY_USERNAME, usernameField.getText());
                     userData.put(Keys.KEY_PASSWORD, passwordField.getText());
 
-                    Client.myUsername = usernameField.getText();
+                    User.getInstance().myUsername = usernameField.getText();
                     Client.signup(userData);
 
                 } catch (Exception ex) {

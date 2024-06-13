@@ -1,3 +1,5 @@
+import model.User;
+
 import java.util.ArrayList;
 
 public class Channel {
@@ -6,7 +8,7 @@ public class Channel {
 
     String channelName;
 
-    int myId = Client.myId;
+    int myId = User.getInstance().myId;
 
     ArrayList<String> userFullNames = new ArrayList<>();
     ArrayList<String> usernames = new ArrayList<>();
