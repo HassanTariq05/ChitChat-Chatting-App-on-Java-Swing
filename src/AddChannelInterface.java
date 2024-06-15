@@ -73,22 +73,7 @@ public class AddChannelInterface {
             addChannelScrollPane.setViewportView(buttonPanel);
         }
 
-        String buttonText = "<html><div style='text-align: center;'><span style='font-size: 12px;'>" + fullName +
-                "</span><br><span style='font-size: 8px;'>" + username + "</span></div></html>";
-
-        JButton userPanelBtn = new JButton(buttonText);
-        Dimension buttonSize = new Dimension(280, 50);
-        userPanelBtn.setPreferredSize(buttonSize);
-        userPanelBtn.setMinimumSize(buttonSize);
-        userPanelBtn.setMaximumSize(buttonSize);
-        userPanelBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        userPanelBtn.setBackground(new Color(63, 63, 63));
-        userPanelBtn.setForeground(new Color(255, 255, 255));
-        userPanelBtn.setOpaque(true);
-        userPanelBtn.setFocusPainted(false);
-        userPanelBtn.setFocusable(false);
-        userPanelBtn.setBorder(BorderFactory.createLineBorder(new Color(40, 40, 41), 4, true));
+        JButton userPanelBtn = new Buttons("Assets/profilePic.png", fullName, username);
         userPanelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

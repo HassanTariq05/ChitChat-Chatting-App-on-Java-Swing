@@ -33,7 +33,12 @@ public class ChatInterface {
     static JButton sendBtn;
     static JPanel channelPanel;
     static List<Channel> addedChannels = new ArrayList<>();
-
+    static List<Buttons> channelButtons = new ArrayList<>(); // List to maintain channel buttons
+    static Buttons selectedChannelButton = null; // Track the selected channel button
+    static int selectedChannelId = -1;
+    static String fullname;
+    static int channelId;
+    static int previouslySelectedChannelId;
     ChatInterface() {
         frame.setTitle("ChitChat");
         frame.setBounds(0, 0, 1440, 790);
@@ -98,7 +103,6 @@ public class ChatInterface {
         });
         addUserPanel.add(showChannelsBtn);
 
-
         chatBoxPanel.setLayout(new BorderLayout());
         chatBoxPanel.setPreferredSize(new Dimension(775,545));
         chatBoxPanel.setBackground(new Color(24,24,25));
@@ -146,6 +150,9 @@ public class ChatInterface {
                 frame.dispose();
                 new SignupInterface();
                 SignupInterface.signupBtn.doClick();
+                addedChannels.clear();
+                User.getInstance().selectedChannel = -1;
+
             }
         });
         profilePanel.add(logoutBtn, BorderLayout.EAST);
@@ -188,22 +195,20 @@ public class ChatInterface {
                 String msg = messageInput.getText();
 
                 if(!msg.trim().isEmpty()) {
+                    selectedChannelId = User.getInstance().channelId;
                     Chat chat = new Chat();
                     chat.setSenderId(User.getInstance().myId);
                     chat.setReceiverId(recieverId);
                     chat.setChannelId(User.getInstance().channelId);
                     chat.setTimestamp(getCurrentTime());
                     chat.setMessage(msg);
-                    System.out.println("Chat Instance:" + chat.toJSONObject());
                     Client.sendChatMessage(chat.toJSONObject());
                     updateChatUI(msg, "outgoing");
-                    Client.getInstance().channelList.clear();
-                    System.out.println("Channel List after:" + Client.getInstance().channelList);
-                    addedChannels.clear();
-                    channelPanel.removeAll();
+                    clearChannelPanel();
+                    ChatInterface.addedChannels.clear();
                     HTTPResponse.getHTTPChannelResponse();
+                    HTTPResponse.getHTTPChatResponse(channelId, true);
                 }
-
                 messageInput.setText("");
             }
         });
@@ -213,6 +218,14 @@ public class ChatInterface {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setResizable(true);
         frame.setVisible(true);
+    }
+
+    public static void clearChannelPanel() {
+        if (channelPanel != null) {
+            channelPanel.removeAll();
+            channelPanel.revalidate();
+            channelPanel.repaint();
+        }
     }
 
     public static void updateChatUI(String msg, String messageState) {
@@ -283,8 +296,6 @@ public class ChatInterface {
         messageHolder.repaint();
     }
 
-
-
     public static void clearChatUI() {
         JPanel messageHolder = (JPanel) ChatInterface.chatScrollPane.getViewport().getView();
         if (messageHolder != null) {
@@ -293,8 +304,6 @@ public class ChatInterface {
             messageHolder.repaint();
         }
     }
-
-
 
     public static ImageIcon loadImage(String resourcePath, int width, int height) {
         try {
@@ -353,20 +362,28 @@ public class ChatInterface {
             System.out.println("Last Message:" + lastMessageJson);
 
             ChatInterface.addedChannels.add(channel);
-            ChannelButton userPanelBtn = new ChannelButton("Assets/profilePic.png", fullName, lastMessageStr, timestampStr, senderId);
+            Buttons userPanelBtn = new Buttons("Assets/profilePic.png", fullName, lastMessageStr, timestampStr, senderId);
             userPanelBtn.addActionListener(getChatPanelReady(fullName, receiverId, channelId));
             ChatInterface.channelPanel.add(userPanelBtn);
             ChatInterface.channelPanel.add(Box.createRigidArea(new Dimension(0, 5)));
             ChatInterface.channelPanel.revalidate();
             ChatInterface.channelPanel.repaint();
+
+            ChatInterface.channelButtons.add(userPanelBtn);
+
+            if (channelId == selectedChannelId) {
+                setSelectedChannelButton(userPanelBtn);
+            }
         }
     }
-
 
     public static ActionListener getChatPanelReady(String fullname, int id, int channelId) {
         return new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                previouslySelectedChannelId = channelId;
+                ChatInterface.fullname = fullname;
+                ChatInterface.channelId = channelId;
                 ChatInterface.profileName.setText(fullname);
                 ChatInterface.recieverId = id;
                 User.getInstance().channelId = channelId;
@@ -375,9 +392,19 @@ public class ChatInterface {
                 ChatInterface.profileName.setVisible(true);
                 ChatInterface.messageInput.setVisible(true);
                 ChatInterface.sendBtn.setVisible(true);
-
                 Client.getChannelChat(channelId);
+
+                Buttons sourceButton = (Buttons) e.getSource();
+                setSelectedChannelButton(sourceButton);
             }
         };
+    }
+
+    private static void setSelectedChannelButton(Buttons button) {
+        if (ChatInterface.selectedChannelButton != null) {
+            ChatInterface.selectedChannelButton.setBackground(new Color(40, 40, 41));
+        }
+        ChatInterface.selectedChannelButton = button;
+        ChatInterface.selectedChannelButton.setBackground(new Color(63, 63, 63));
     }
 }

@@ -94,15 +94,25 @@ public class ClientRunnable implements Runnable {
     private void handleResponseSentChatMessage(JSONObject jsonObject) {
         int receiverId = jsonObject.getInt("receiverId");
         int channelId = jsonObject.getInt("channelId");
-        if(receiverId == User.getInstance().myId && User.getInstance().selectedChannel == channelId) {
-            String message = jsonObject.getString("message");
-            ChatInterface.updateChatUI(message, "incoming");
-            Client.getInstance().channelList.clear();
-            System.out.println("Channel List after:" + Client.getInstance().channelList);
-            ChatInterface.addedChannels.clear();
-            ChatInterface.channelPanel.removeAll();
-            HTTPResponse.getHTTPChannelResponse();
+        String message = jsonObject.getString("message");
+        System.out.println("Received message for receiverId: " + receiverId + ", channelId: " + channelId + ", message: " + message);
 
+        if (receiverId == User.getInstance().myId) {
+            if (User.getInstance().selectedChannel != channelId) {
+                System.out.println("Updating channels as the message is for a non-selected channel");
+                ChatInterface.clearChannelPanel();
+                ChatInterface.addedChannels.clear();
+                ChatInterface.selectedChannelId = ChatInterface.previouslySelectedChannelId;
+                HTTPResponse.getHTTPChannelResponse();
+                HTTPResponse.getHTTPChatResponse(User.getInstance().channelId, true);
+            } else {
+                System.out.println("Updating chat UI as the message is for the selected channel");
+                ChatInterface.updateChatUI(message, "incoming");
+                ChatInterface.clearChatUI();
+                HTTPResponse.getHTTPChannelResponse();
+                ChatInterface.selectedChannelId = User.getInstance().channelId;
+                HTTPResponse.getHTTPChatResponse(channelId, true);
+            }
         }
     }
 
