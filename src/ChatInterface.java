@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +41,7 @@ public class ChatInterface {
     static String fullname;
     static int channelId;
     static int previouslySelectedChannelId;
+    static JLabel wallpaper;
     ChatInterface() {
         frame.setTitle("ChitChat");
         frame.setBounds(0, 0, 1440, 790);
@@ -113,10 +116,23 @@ public class ChatInterface {
         chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         chatScrollPane.setBorder(BorderFactory.createMatteBorder(0,1,0,1,new Color(63,63,63)));
-        chatScrollPane.getViewport().setBackground(new Color(24,24,25));
+        chatScrollPane.getViewport().setBackground(new Color(62,62,62));
         chatScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0,0));
-
         chatBoxPanel.add(chatScrollPane, BorderLayout.CENTER);
+
+        wallpaper = new JLabel(loadImage("Assets/wallpaper.png", 750, 500));
+        chatScrollPane.getViewport().add(wallpaper);
+        chatScrollPane.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                Dimension size = chatScrollPane.getViewport().getSize();
+                wallpaper.setSize(size);
+                wallpaper.setPreferredSize(size);
+                wallpaper.revalidate();
+                wallpaper.repaint();
+                chatScrollPane.getViewport().add(wallpaper);
+            }
+        });
 
         profilePanel.setLayout(new BorderLayout());
         profilePanel.setPreferredSize(new Dimension(775, 50));
@@ -298,6 +314,7 @@ public class ChatInterface {
     }
 
     public static void clearChatUI() {
+        chatScrollPane.getViewport().removeAll();
         JPanel messageHolder = (JPanel) ChatInterface.chatScrollPane.getViewport().getView();
         if (messageHolder != null) {
             messageHolder.removeAll();
