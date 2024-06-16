@@ -109,8 +109,10 @@ public class ClientRunnable implements Runnable {
                 System.out.println("Updating chat UI as the message is for the selected channel");
                 ChatInterface.updateChatUI(message, "incoming");
                 ChatInterface.clearChatUI();
-                HTTPResponse.getHTTPChannelResponse();
+                ChatInterface.clearChannelPanel();
+                ChatInterface.addedChannels.clear();
                 ChatInterface.selectedChannelId = User.getInstance().channelId;
+                HTTPResponse.getHTTPChannelResponse();
                 HTTPResponse.getHTTPChatResponse(channelId, true);
             }
         }

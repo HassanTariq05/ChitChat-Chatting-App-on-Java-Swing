@@ -97,6 +97,7 @@ public class ChatInterface {
         showChannelsBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                AddChannelInterface.btnList.clear();
                 HTTPResponse.getHTTPAllUserListResponse(User.getInstance().myId);
                 new AddChannelInterface();
             }

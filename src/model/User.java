@@ -1,5 +1,6 @@
 package model;
 
+import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +24,7 @@ public class User {
 
     public int selectedChannel;
     public String baseAssetPath = "/Users/i2p/IdeaProjects/Chat/Assets/";
-
-//    int id;
+    //    int id;
 //    String username;
 //    String fullName;
 //    String password;

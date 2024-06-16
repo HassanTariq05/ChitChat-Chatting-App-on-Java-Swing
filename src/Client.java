@@ -172,6 +172,7 @@ public class Client {
                     }
                 }
                 if (!alreadyAdded) {
+
                     AddChannelInterface.updateAddAllUserPanel(id, fullname, username);
                 }
             }

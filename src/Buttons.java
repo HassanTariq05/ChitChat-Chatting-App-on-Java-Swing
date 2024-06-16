@@ -56,6 +56,7 @@ public class Buttons extends JButton {
         this.fullName = fullName;
         this.username = username;
         this.buttonName = "userListButton";
+        setText(fullName);
 
         try {
             profilePic = ImageIO.read(new File(profilePicPath));
@@ -71,7 +72,8 @@ public class Buttons extends JButton {
         setContentAreaFilled(false);
 
         setBackground(new Color(63, 63, 63));
-        setForeground(new Color(255, 255, 255));
+//        setForeground(new Color(255, 255, 255));
+        setForeground(new Color(63, 63, 63));
         setOpaque(true);
         setFocusPainted(false);
         setFocusable(false);
