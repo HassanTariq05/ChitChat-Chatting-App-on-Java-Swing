@@ -1,3 +1,4 @@
+import App.env;
 import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,7 +30,7 @@ public class Client {
 
     public static void main(String[] args) {
 
-        try (Socket socket = new Socket("localhost", 6001)) {
+        try (Socket socket = new Socket(env.SOCKET_HOST, env.SOCKET_PORT)) {
             getInstance().signupInterface = new SignupInterface();
             BufferedReader input = new BufferedReader( new InputStreamReader(socket.getInputStream()));
             getInstance().output = new PrintWriter(socket.getOutputStream(),true);

@@ -1,3 +1,4 @@
+import App.env;
 import model.User;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -9,7 +10,7 @@ import java.util.Scanner;
 
 public class HTTPResponse {
     public static void getHTTPChannelResponse() {
-        String urlString = "http://127.0.0.1:8080/channels/Client-ID=" + User.getInstance().myId;
+        String urlString = env.HTTP_BASE_URL +  "channels/Client-ID=" + User.getInstance().myId;
         System.out.println(urlString);
 
         try {
@@ -41,7 +42,7 @@ public class HTTPResponse {
 
 
     public static JSONObject getHTTPChatResponse(int channelId, Boolean channelSelected) {
-        String urlString = "http://127.0.0.1:8080/chats/Channel-ID=" + channelId;
+        String urlString = env.HTTP_BASE_URL +  "chats/Channel-ID=" + channelId;
         System.out.println(urlString);
 
         try {
@@ -103,7 +104,7 @@ public class HTTPResponse {
     }
 
     public static void getHTTPAllUserListResponse(int clientId) {
-        String urlString = "http://127.0.0.1:8080/users/Client-ID=" + clientId;
+        String urlString = env.HTTP_BASE_URL +  "users/Client-ID=" + clientId;
         System.out.println(urlString);
 
         try {
